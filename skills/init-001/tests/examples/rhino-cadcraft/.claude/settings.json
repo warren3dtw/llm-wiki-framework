@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__rhino",
+      "Bash(*cadcraft-cli* *)",
+      "PowerShell(*cadcraft-cli* *)"
+    ],
+    "ask": [],
+    "deny": []
+  },
+  "hooks": {}
+}

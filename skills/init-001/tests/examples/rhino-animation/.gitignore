@@ -1,0 +1,10 @@
+.claude/settings.local.json
+.env
+.env.*
+!.env.example
+*.3dmbak
+*.rhl
+node_modules/
+out/
+__pycache__/
+*.pyc

@@ -1,0 +1,21 @@
+name: check
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 檢查格式、連結、編號、索引，驗證公式
+        run: python scripts/wiki.py lint
+      - name: 確認輸出正常
+        run: |
+          python scripts/wiki.py export atlas
+          python scripts/wiki.py export datasheet
+      - name: 確認空框架可以輸出、沒有個人資料
+        run: python scripts/wiki.py export framework

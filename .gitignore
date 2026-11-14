@@ -1,0 +1,16 @@
+# 原件：有版權、檔案大，不進 git。登記卡（raw/*.md）和擷取的每頁文字進 git，
+# 登記卡裡記了檔名和 sha256，用來確認是同一份
+wikis/*/raw/*
+!wikis/*/raw/*.md
+!wikis/*/raw/*/
+# 整頁的頁面圖，隨時可以用 wiki.py ingest page 重新產生
+wikis/*/raw/*/*.png
+
+# 輸出成品
+build/
+
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+.obsidian/

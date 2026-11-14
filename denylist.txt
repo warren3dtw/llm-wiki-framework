@@ -1,0 +1,4 @@
+# 全域禁用字：不能出現在公開輸出（export skill --public、export framework）裡的字。
+# 一行一個，不分大小寫；re: 開頭是正規表示式；# 開頭是註解。
+# 例如：自己的名字、帳號、業主、專案名稱、設計單位。
+# 各專案專用的字放在技能的 profiles/<專案主題>/denylist.txt。
