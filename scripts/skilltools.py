@@ -17,6 +17,7 @@
       沒有 .wiki-source：第一次匯入，建立 skills/<代號>/（draft、share: private）和原件登記卡
 
   new skill <代號> [--title 標題]                    從 templates/skill/ 建立一個新技能
+  new plan <英文小寫名稱> [--title 標題]              建立 docs/plans/<今天>-<名稱>/，放 plan、specs、tasks 三份模板
   new wiki <名稱> --kind general|project [--title 標題] [--summary 摘要]   建立一個新主題
 
 輸出的 SKILL.md 檔頭只留 Agent Skills 規格的欄位（name、description、metadata），知識庫用的欄位放進 metadata。
@@ -543,11 +544,31 @@ updated: {today}
 
 
 def cmd_new(args):
-    if len(args) < 2 or args[0] not in ("skill", "wiki"):
+    if len(args) < 2 or args[0] not in ("skill", "wiki", "plan"):
         sys.exit(__doc__)
     what, name = args.pop(0), args.pop(0)
     today = datetime.date.today().isoformat()
     title = option(args, "--title")
+    if what == "plan":
+        spec = core.SCHEMA["plans"]
+        if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", name):
+            sys.exit("計畫名稱只能用英文小寫、數字和連字號，例如 clt-handbook-ch4")
+        base = core.ROOT / spec["folder"]
+        dest = base / f"{today}-{name}"
+        n = 2
+        while dest.exists():
+            dest = base / f"{today}-{name}-{n}"
+            n += 1
+        dest.mkdir(parents=True)
+        for f in spec["files"]:
+            text = (core.ROOT / spec["templates"] / f).read_text(encoding="utf-8")
+            text = text.replace("YYYY-MM-DD", today, 1)
+            if f == "plan.md" and title:
+                text = text.replace("# 計畫：標題", f"# 計畫：{title}", 1)
+            (dest / f).write_text(text, encoding="utf-8")
+        print(f"已建立 {dest.relative_to(core.ROOT).as_posix()}/。先寫 plan 的目標和 specs，再開始做；"
+              "每個階段結束或要停時更新 tasks 的存檔點表。")
+        return
     if what == "skill":
         if not ID_RE.fullmatch(name):
             sys.exit("技能代號要寫成「前綴-三位數」，例如 rhino-002")

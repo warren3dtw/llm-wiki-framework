@@ -365,6 +365,39 @@ def check_wiki_pages(errors):
                     errors.append(f"{path.relative_to(core.ROOT).as_posix()}：連結 {target} 不存在")
 
 
+def check_framework(errors, warnings):
+    """框架本身：CHANGELOG 最上面的版本等於 schema 的 framework_version；計畫資料夾都有三份檔案。"""
+    version = SCHEMA.get("framework_version", "")
+    log = core.ROOT / "CHANGELOG.md"
+    if version and log.exists():
+        m = re.search(r"^## (\d+\.\d+\.\d+)", log.read_text(encoding="utf-8"), re.M)
+        if not m or m.group(1) != version:
+            errors.append(f"CHANGELOG.md 最上面的版本（{m.group(1) if m else '沒有'}）和 schema.json 的 "
+                          f"framework_version（{version}）不同")
+    spec = SCHEMA.get("plans")
+    if not spec:
+        return
+    base = core.ROOT / spec["folder"]
+    folders = [p for p in base.glob("*/") if p.is_dir() and p.name != spec["archive"]]
+    folders += [p for p in (base / spec["archive"]).glob("*/") if p.is_dir()]
+    for folder in sorted(folders):
+        rel = folder.relative_to(core.ROOT).as_posix()
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}-[a-z0-9]+(-[a-z0-9]+)*", folder.name):
+            errors.append(f"{rel}：計畫資料夾要寫成 YYYY-MM-DD-英文小寫名稱")
+        for name in spec["files"]:
+            if not (folder / name).exists():
+                errors.append(f"{rel}：計畫缺少 {name}（從 {spec['templates']}/ 複製）")
+        plan = folder / "plan.md"
+        if plan.exists():
+            text = plan.read_text(encoding="utf-8")
+            done = re.search(r"^狀態：\s*(完成|取消)", text, re.M)
+            if done and folder.parent == base:
+                warnings["計畫已結束但沒有歸檔"].append(f"{rel}（移到 {spec['folder']}/{spec['archive']}/）")
+            for target in link_targets({"body": text}):
+                if target and not (folder / target).exists():
+                    errors.append(f"{rel}/plan.md：連結 {target} 不存在")
+
+
 def main():
     quiet = "-q" in sys.argv
     records = core.load_records()
@@ -373,6 +406,7 @@ def main():
     check_items(records, errors)
     check_entries(records, errors, warnings)
     check_wiki_pages(errors)
+    check_framework(errors, warnings)
     for name, text in build_index.make_index(records).items():
         path = core.ROOT / "index" / name
         if not path.exists() or path.read_text(encoding="utf-8") != text:

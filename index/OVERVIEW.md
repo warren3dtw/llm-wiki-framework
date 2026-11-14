@@ -20,7 +20,7 @@
 
 | 技能 | 版本 | 標題 | 用到的知識點 | 可見度 | 狀態 |
 |---|---|---|---|---|---|
-| [`init-001`](../skills/init-001/SKILL.md) | 2.3.1 | 建立可由 AI 持續工作的空專案結構（通用、Rhino 繪圖、Rhino 組裝動畫） | — | public | draft |
+| [`init-001`](../skills/init-001/SKILL.md) | 2.3.2 | 建立可由 AI 持續工作的空專案結構（通用、Rhino 繪圖、Rhino 組裝動畫） | — | public | draft |
 
 
 原子（詞條）共 0 個：

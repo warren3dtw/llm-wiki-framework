@@ -5,8 +5,12 @@
 ## 1. 目錄
 
 ```
-AGENTS.md  CLAUDE.md  USING.md  MAINTAINING.md  GLOSSARY.md
-schema.json                   類型、種類、必填欄位、必要小節、知識點規則
+AGENTS.md  CLAUDE.md  USING.md  MAINTAINING.md  GLOSSARY.md  CHANGELOG.md
+schema.json                   類型、種類、必填欄位、必要小節、知識點規則、框架版本
+docs/FRAMEWORK.md             整體設計
+docs/FEEDBACK.md              框架的問題和調整紀錄
+docs/plans/<日期-名稱>/        多次工作的計畫：plan、specs、tasks（第 10 節）；結束後移到 archive/
+.claude/                      Claude Code 的設定、唯讀確認助手、hooks 說明
 atoms/                        原子（詞條），全部主題共用
 skills/<代號>/                 技能，全部主題共用（第 9 節）
   SKILL.md                    本體
@@ -23,6 +27,7 @@ wikis/<主題>/
   figure/<知識點>/*.md + 影像    圖
   code/<知識點>/*.md + 程式檔    程式碼
 calc/                         可執行的公式
+templates/                    頁、技能、計畫（plan/）的空白樣板
 index/                        索引（wiki.py index 產生，不要手改）
 scripts/wiki.py               單一入口；其他 .py 是各動作的實作
 build/                        輸出成品（不進 git）
@@ -178,7 +183,31 @@ python scripts/wiki.py install skill <代號> <工作專案路徑> --profile <�
 
 `python scripts/wiki.py export framework` 輸出只有程式、規則、模板和 `framework.json` 列出的技能的空框架，並在輸出的資料夾裡執行 index 和 lint、做掃描。`framework.json` 的 `replace` 把說明文件裡的個人和專案名稱換成中性的寫法。新增說明文件或腳本時，如果範例用到新的專案名稱或人名，要同時加進 `denylist.txt` 和 `framework.json`。
 
-## 10. 不要做
+## 10. 多次工作的計畫、存檔與 commit
+
+規則原文是知識點 `agent:project-harness` 的五頁筆記（空框架裡附在 `skills/init-001/references/`）。這一節只寫知識庫怎麼套用。
+
+**什麼時候開計畫**：一次對話做不完、或會中斷換人的工作，例如整理一整章原件、匯入或大改一個技能、改框架的腳本或 schema。改幾頁、補別名這類小事不必開。
+
+```bash
+python scripts/wiki.py new plan clt-handbook-ch4 --title "CLT 手冊第 4 章"   # 建立 docs/plans/<今天>-clt-handbook-ch4/
+```
+
+- 先寫 `plan.md` 的目標、範圍、輸入、待確認，和 `specs.md` 的驗收條件，再開始做。驗收條件寫成指令能判斷的，例如「`wiki.py lint` 0 錯誤」「`query point <知識點>` 列出每一項」。
+- **存檔點**：每個階段結束、或中途要停時，在 `tasks.md` 的表更新一列：產出、commit 代號、lint 結果、狀態、下一步。頁都在 git 裡，所以識別碼記 commit，不必逐檔記雜湊值；原件記登記卡上的 sha256。
+- **續作**：先讀 `docs/plans/` 裡還沒歸檔的計畫，從 `tasks.md` 第一個不是「已驗收」的階段接著做。表上的 commit 和 `git log` 對不上時，先記進 FEEDBACK 再繼續。
+- **變更等級**：在規格內的修改直接改；要改 `specs.md` 時，先記下日期、原因和要重做的驗收。知識庫的檔案都在 git 裡，不另外備份。
+- **驗收**：結果只用通過、失敗、未執行、不適用，每一條附指令和證據。頁的 `reviewed` 只有擁有者能設，所以 agent 的驗收最多到「已驗收」，頁維持 `draft`。
+- **結案**：`plan.md` 的狀態改成「完成」或「取消」並寫結案，整個資料夾移到 `docs/plans/archive/`。lint 會提醒結束了還沒歸檔的計畫。
+- **commit**：整個任務完成而且 lint 通過才 commit，只納入這次的變更，不自動 push。commit 不等於擁有者確認。
+
+**框架的問題和版本**
+
+- 框架本身（腳本、schema、規則、模板、技能層）的問題和調整，記在 [`docs/FEEDBACK.md`](docs/FEEDBACK.md)。知識內容的問題記在各主題的 `inbox.md`。
+- 改了框架就在 [`CHANGELOG.md`](CHANGELOG.md) 加一筆，並更新 `schema.json` 的 `framework_version`。lint 會檢查兩者相同。
+- `.claude/agents/page-reviewer.md` 是唯讀的確認助手，可以請它照 `query review` 的順序逐頁對照原件，結果由擁有者決定。
+
+## 11. 不要做
 
 - 不改原件，不改 `index/`（用腳本產生）。
 - 不把 `status` 設成 `reviewed`，不改擁有者寫的觀點。
@@ -188,3 +217,4 @@ python scripts/wiki.py install skill <代號> <工作專案路徑> --profile <�
 - 不新增類型或欄位，除非先改 `schema.json` 並說明原因。
 - 不在技能本體（SKILL.md、scripts/）寫專案的名稱、圖號、人名或本機路徑，放 profile。
 - 不把 `share` 標得比推算結果寬。
+- 不在驗證失敗或任務沒做完時 commit，不自動 push。

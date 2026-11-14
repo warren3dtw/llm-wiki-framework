@@ -26,6 +26,10 @@
 | denylist | 禁用字清單 | 不能出現在公開輸出裡的字。根目錄一份管全部，技能的 profile 裡各一份只管那個技能 |
 | incoming | 待併入的改動 | 技能的 `incoming/`：從工作專案帶回來、還沒併入的差異 |
 | framework | 空框架 | 只有程式、規則、模板的版本，可以給別人 |
+| plan / specs / tasks | 計畫 / 規格 / 任務 | `docs/plans/<日期-名稱>/` 的三份檔案，給一次做不完的工作用 |
+| checkpoint | 存檔點 | tasks 的「階段與存檔點」表的一列：產出、commit、lint 結果、狀態、下一步 |
+| FEEDBACK | 問題與調整紀錄 | `docs/FEEDBACK.md`，只記框架本身的問題 |
+| CHANGELOG | 版本紀錄 | 框架的版本，號碼在 `schema.json` 的 `framework_version` |
 | index | 索引 | `index/` 裡給 agent 先讀的目錄 |
 
 ## 動作

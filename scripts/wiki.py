@@ -13,7 +13,7 @@
             輸出技能（私人版或公開版）            export skill <代號> --public | --profile <專案主題> | --bare
             輸出空框架（不含任何個人內容）        export framework [--out 資料夾]
   install   把技能裝進工作專案                   install skill <代號> <專案路徑> --profile <專案主題> | --public | --bare
-  new       建立新的主題或技能                   new wiki <名稱> --kind general|project ／ new skill <代號>
+  new       建立新的主題、技能或計畫              new wiki <名稱> --kind general|project ／ new skill <代號> ／ new plan <名稱>
 
 每個動作後面不接參數時，會印出它自己的說明。
 """

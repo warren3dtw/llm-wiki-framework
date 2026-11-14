@@ -6,7 +6,7 @@ description: init-001：建立可由 AI 持續工作的完整空專案結構，�
 user-invocable: true
 type: skill
 kind: setup
-version: 2.3.1
+version: 2.3.2
 share: public
 atoms: []
 points: []
@@ -181,6 +181,16 @@ AGENTS.md
 - 專案事實以 PROJECT 為唯一來源，數值不複製到 agents、rules、提醒腳本。
 - 初始化完成與專案可以執行不同：未知公差不妨礙空結構完成，但阻擋依賴該公差的建模或驗收。
 - 不把這份 init 自身當待填專案文件；本文件的路徑示例、格式示例不是生成產物。
+
+## 依據的規則
+
+下面五條是本技能產生的 DEVELOPMENT、TESTING、rules 背後的通用規則。內容契約把它們寫成每個專案的文件；規則本身改了，先改這幾頁，再改契約。
+
+- 階段存檔點：[階段存檔點：每個階段結束或中途要停時，都要留下可以接續的狀態](references/note-project-harness-001-checkpoint.md)
+- 變更等級與備份：[變更等級：在規格內的修改不備份，改規格前備份一次](references/note-project-harness-002-change-level.md)
+- 未知不是預設：[未知不是預設：先補這次工作需要的資訊，不猜](references/note-project-harness-003-unknown-is-not-default.md)
+- 驗收要有證據：[驗收要有證據：結果只分通過、失敗、未執行、不適用](references/note-project-harness-004-evidence-based-acceptance.md)
+- commit 時機：[commit 時機：整個任務完成而且驗證通過才 commit，不自動 push](references/note-project-harness-005-commit-timing.md)
 
 ## Phase 2 到 Phase 5：內容契約
 

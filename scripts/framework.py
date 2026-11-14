@@ -4,8 +4,10 @@
   export framework [--out 資料夾]      預設輸出到 build/framework/
 
 做的事：
-  1. 複製框架檔案：說明文件、schema.json、scripts/、templates/、docs/FRAMEWORK.md、.github/、.gitignore
-  2. 複製 framework.json 的 skills 列出的技能（要能公開；專案的 profiles 不帶，raw 欄位清空）
+  1. 複製框架檔案：說明文件、CHANGELOG.md、schema.json、scripts/、templates/、docs/FRAMEWORK.md、.claude/、.github/、
+     .gitignore；docs/FEEDBACK.md 和 docs/plans/ 換成空白的
+  2. 複製 framework.json 的 skills 列出的技能（要能公開）。專案的 profiles 不帶；raw 清空；from 依據的頁
+     寫成技能 references/ 裡的檔案，本文裡的代號改成連到那些檔案；atoms、points、from、uses 清空
   3. 依 framework.json 的 replace 把個人或專案名稱換成中性的寫法（開頭是 re: 的是正規表示式，照順序做）
   4. 放上空的 wikis/、atoms/、calc/，以及空白的 denylist.txt、framework.json、README.md
   5. 在輸出的資料夾裡重建索引、執行 lint，確認框架自己跑得起來
@@ -25,10 +27,11 @@ import core
 import scan
 import skilltools
 
-FILES = ["AGENTS.md", "CLAUDE.md", "USING.md", "MAINTAINING.md", "GLOSSARY.md", "schema.json", ".gitignore",
-         "docs/FRAMEWORK.md", "calc/__init__.py"]
-FOLDERS = ["scripts", "templates", ".github"]
-EMPTY = ["wikis", "atoms"]
+FILES = ["AGENTS.md", "CLAUDE.md", "USING.md", "MAINTAINING.md", "GLOSSARY.md", "CHANGELOG.md", "schema.json",
+         ".gitignore", "docs/FRAMEWORK.md", "calc/__init__.py"]
+FOLDERS = ["scripts", "templates", ".github", ".claude"]
+EMPTY = ["wikis", "atoms", "docs/plans", "docs/plans/archive"]
+SKIP_FILES = {"settings.local.json"}
 SKIP_NAMES = {"__pycache__"}
 
 
@@ -41,22 +44,42 @@ def load_config():
 
 def copy_tree(src, dst):
     for path in sorted(src.rglob("*")):
-        if not path.is_file() or SKIP_NAMES & set(path.parts) or path.suffix == ".pyc":
+        if not path.is_file() or SKIP_NAMES & set(path.parts) or path.suffix == ".pyc" or path.name in SKIP_FILES:
             continue
         target = dst / path.relative_to(src)
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(path, target)
 
 
-def strip_skill(folder):
-    """帶進框架的技能：拿掉專案的 profiles 和還沒併入的改動，raw 欄位清空（原件登記卡不在框架裡）。"""
+def strip_skill(folder, rec, records, colls, problems):
+    """帶進框架的技能：框架裡沒有主題、原子和原件，所以
+
+    - 拿掉專案的 profiles 和還沒併入的改動
+    - from 依據的頁寫成 references/ 裡的檔案（只能是可以公開的頁），本文裡的代號改成連到那些檔案
+    - raw、atoms、points、from、uses 清空
+    """
     for name in (core.TYPES["skill"]["files"]["profiles"], "incoming"):
         shutil.rmtree(folder / name, ignore_errors=True)
     entry = folder / core.TYPES["skill"]["entry"]
     text = entry.read_text(encoding="utf-8")
     end = text.find("\n---", 4)
-    head = re.sub(r"(?m)^raw:.*$", 'raw: ""', text[:end])
-    entry.write_text(head + text[end:], encoding="utf-8")
+    head, body = text[:end], text[end:]
+    for ref in rec.get("from", []):
+        target = core.resolve(ref, None, records)
+        if not target:
+            continue
+        page = records[target]
+        if core.share_of(page, records, colls) == "private":
+            problems.append(f"技能 {rec['name']} 依據的 {target} 不能公開，空框架裡會缺這一頁")
+            continue
+        (folder / "references").mkdir(exist_ok=True)
+        files = skilltools.reference_page(page, records, folder / "references")
+        body = body.replace(f"`{target}`", f"[{page.get('title', target)}](references/{files[0]})")
+    for key in ("raw",):
+        head = re.sub(rf"(?m)^{key}:.*$", f'{key}: ""', head)
+    for key in ("atoms", "points", "from", "uses"):
+        head = re.sub(rf"(?m)^{key}:.*$", f"{key}: []", head)
+    entry.write_text(head + body, encoding="utf-8")
 
 
 def main(argv=None):
@@ -82,12 +105,15 @@ def main(argv=None):
     for rel in FOLDERS:
         if (core.ROOT / rel).is_dir():
             copy_tree(core.ROOT / rel, out / rel)
-    for name in ("README.md", "denylist.txt", "framework.json"):
+    version = core.SCHEMA.get("framework_version", "")
+    for name, dest in (("README.md", "README.md"), ("denylist.txt", "denylist.txt"), ("framework.json", "framework.json"),
+                       ("FEEDBACK.md", "docs/FEEDBACK.md")):
         src = core.ROOT / "templates" / "framework" / name
         if src.exists():
-            shutil.copyfile(src, out / name)
+            (out / dest).parent.mkdir(parents=True, exist_ok=True)
+            (out / dest).write_text(src.read_text(encoding="utf-8").replace("{{VERSION}}", version), encoding="utf-8")
     for name in EMPTY:
-        (out / name).mkdir(exist_ok=True)
+        (out / name).mkdir(parents=True, exist_ok=True)
         (out / name / ".gitkeep").touch()
 
     skills_dir = out / core.TYPES["skill"]["folder"]
@@ -103,7 +129,7 @@ def main(argv=None):
             problems.append(f"技能 {sid} 是 private，不能放進空框架")
             continue
         copy_tree(rec["path"].parent, skills_dir / sid)
-        strip_skill(skills_dir / sid)
+        strip_skill(skills_dir / sid, rec, records, colls, problems)
         if rec.get("status") != "reviewed":
             notes.append(f"技能 {sid} 還是草稿（{rec.get('status')}）")
     if not any(skills_dir.iterdir()):
@@ -140,6 +166,7 @@ def main(argv=None):
 
     n_files = sum(1 for p in out.rglob("*") if p.is_file())
     report = [f"# 空框架輸出報告", "",
+              f"- 框架版本：{version or '不明'}",
               f"- 日期：{datetime.date.today().isoformat()}",
               f"- 知識庫 commit：{skilltools.git_commit() or '不明'}",
               f"- 輸出位置：{out}",
@@ -150,8 +177,9 @@ def main(argv=None):
               "- 全部主題（wikis/）、原子（atoms/）、原件和擷取文字",
               "- 其他技能、技能的 profiles",
               "- calc/ 的公式（依據的頁不在框架裡）",
-              "- docs/ 裡的討論紀錄（只帶 FRAMEWORK.md）",
-              "- 根目錄的 denylist.txt 和 framework.json（換成空白的）", "",
+              "- docs/ 裡的討論紀錄和計畫（只帶 FRAMEWORK.md；FEEDBACK.md 和 docs/plans/ 換成空白的）",
+              "- 根目錄的 denylist.txt 和 framework.json（換成空白的）",
+              "- .claude/settings.local.json", "",
               "## 框架自己跑得起來嗎", ""]
     report += [f"- wiki.py {name}：{'通過' if code == 0 else '失敗'}（{' / '.join(tail)}）" for name, code, tail in checks]
     report += ["", "## 掃描", "",
@@ -170,7 +198,7 @@ def main(argv=None):
             print(f"  - {p}")
         print(f"輸出保留在 {out} 供檢查。報告：{report_path}")
         sys.exit(1)
-    print(f"已輸出空框架到 {out}（{n_files} 個檔案）。")
+    print(f"已輸出空框架 {version} 到 {out}（{n_files} 個檔案）。")
     for n in notes:
         print(f"  注意：{n}")
     print(f"報告：{report_path}")

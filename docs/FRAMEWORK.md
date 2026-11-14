@@ -33,6 +33,8 @@
 | 個人設定 | profile | `skills/<代號>/profiles/<專案主題>/` | 技能在某個專案的慣例、參數、案件經驗 | — |
 | 公式 | calc | `calc/<主題>/` | 可執行的公式，依據某一頁，由那一頁的核對區塊驗證 | `calc/<檔>.py::<函式>` |
 | 索引 | index | `index/` | 由程式產生，給 agent 先讀 | — |
+| 計畫 | plan | `docs/plans/<日期-名稱>/` | 一次做不完的工作：plan、specs、tasks，tasks 有階段與存檔點表 | 資料夾名稱 |
+| 框架紀錄 | — | `CHANGELOG.md`、`docs/FEEDBACK.md` | 框架的版本，以及框架本身的問題和調整 | 版本號 |
 
 四種頁是知識的**形式**：
 
@@ -99,20 +101,26 @@
 | 工作專案裡改過的技能 | `ingest skill <資料夾>`（有 `.wiki-source`） | `skills/<代號>/incoming/` 裡的差異說明，人工併入 |
 | 想法、疑問、發現的錯誤 | 寫進主題的 `inbox.md` | 待處理 |
 
-### 4.2 檢查和確認
+### 4.2 多次工作
 
-- `lint` 檢查格式、欄位、連結、編號、配對、入口檔、方向規則、可見度、索引是否最新，並執行公式的核對區塊和技能的測試。錯誤要修，警告是待辦。
+一次做不完的工作（整理一整章、匯入技能、改框架）先用 `new plan` 開計畫：寫目標和驗收條件，再分階段做。每個階段結束或要停時，在 tasks 的存檔點表記產出、commit、lint 結果和下一步；續作從第一個不是「已驗收」的階段接著做。結束後移到 `docs/plans/archive/`。整個任務完成而且 lint 通過才 commit，不自動 push。
+
+這些規則原本是給工作專案用的（技能 init-001 會把它們寫進每個工作專案的 docs），知識庫也照同一套。規則原文附在 `skills/init-001/references/`。
+
+### 4.3 檢查和確認
+
+- `lint` 檢查格式、欄位、連結、編號、配對、入口檔、方向規則、可見度、索引是否最新、計畫資料夾、框架版本，並執行公式的核對區塊和技能的測試。錯誤要修，警告是待辦。
 - 新的頁和技能一律是 `draft`。只有擁有者能改成 `reviewed`。
 - `query review` 依「先確認被依據的」排序：原件 → 原子 → 資料 → 圖 → 程式碼 → 筆記（原理 → 做法 → 觀點）→ 技能。
 
-### 4.3 使用
+### 4.4 使用
 
 - agent 先讀 `index/OVERVIEW.md`，再用 `query` 找頁；不要一開始就掃全部檔案。
 - 專案主題預設不查，問題提到專案才查。
 - `query trace` 往上追到原件的位置；`query impact` 往下查誰依據它，包含技能。
 - 有技能的工作，先讀 SKILL.md 照著做。
 
-### 4.4 輸出
+### 4.5 輸出
 
 | 指令 | 產物 | 給誰 |
 |---|---|---|
@@ -122,7 +130,7 @@
 | `install skill ...` | 把技能裝進工作專案，留下 `.wiki-source` | 自己的工作專案 |
 | `export framework` | 空框架：只有程式、規則、模板和框架的技能 | 別人 |
 
-### 4.5 技能的循環
+### 4.6 技能的循環
 
 ```
 知識庫的技能 ──install──→ 工作專案 ──（工作時直接改，記在專案的 FEEDBACK）──┐
@@ -191,7 +199,7 @@ skills/<代號>/
 
 | 動作 | 做什麼 |
 |---|---|
-| `new wiki`、`new skill` | 建立新的主題、技能 |
+| `new wiki`、`new skill`、`new plan` | 建立新的主題、技能、計畫 |
 | `ingest raw`／`text`／`page`／`find`／`crop` | 登記原件、擷取文字和圖 |
 | `ingest skill` | 從工作專案帶進技能，或帶回改動 |
 | `query overview`／`search`／`atom`／`get`／`data`／`figure`／`point` | 找和讀 |
@@ -207,11 +215,12 @@ skills/<代號>/
 
 1. `python scripts/wiki.py new wiki <名稱> --kind general` 建立第一個主題。
 2. 原件放進 `wikis/<名稱>/raw/`，`ingest raw` 登記，填好授權和 `share`。
-3. 照 `templates/` 起草頁，更新 NOTE.md。
+3. 照 `templates/` 起草頁，更新 NOTE.md。整理一整份原件這種一次做不完的工作，先 `new plan` 開計畫。
 4. `python scripts/wiki.py index`，再 `lint`，零錯誤才算完成。
 5. 要建立工作專案時，用技能 `init-001`。
 6. 要把工作方法留下來時，`new skill <代號>`，或用 `ingest skill` 從工作專案帶進來。
 7. 根目錄的 `denylist.txt` 填上不能公開的字；`framework.json` 填要帶進空框架的技能和要替換的字。
+8. 改了框架本身時，在 `CHANGELOG.md` 加一筆、更新 `schema.json` 的 `framework_version`，問題記在 `docs/FEEDBACK.md`。
 
 ## 9. 已知的限制
 

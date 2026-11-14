@@ -1,5 +1,7 @@
 # LLM Wiki 框架
 
+版本 0.4.0，改了什麼見 [`CHANGELOG.md`](CHANGELOG.md)。
+
 一個用純文字和 git 管理的個人知識庫框架，設計給人和 AI agent 一起維護、一起使用。
 
 - 原件（raw）整理成四種頁：筆記（note）、資料（data）、圖（figure）、程式碼（code）。
@@ -14,6 +16,7 @@
 
 ```bash
 python scripts/wiki.py new wiki <名稱> --kind general --title "主題的標題"
+python scripts/wiki.py new plan <英文名稱> --title "第一份原件"
 python scripts/wiki.py index
 python scripts/wiki.py lint
 ```
@@ -25,6 +28,7 @@ python scripts/wiki.py lint
 - 怎麼查和用：[`USING.md`](USING.md)
 - 怎麼新增和維護：[`MAINTAINING.md`](MAINTAINING.md)
 - 用語：[`GLOSSARY.md`](GLOSSARY.md)
+- 一次做不完的工作怎麼開計畫、怎麼續作：`MAINTAINING.md` 第 10 節
 
 說明文件裡的範例代號（例如 `project-demo`、`bearing-connection`）只是示範，這個空框架裡沒有這些頁。
 

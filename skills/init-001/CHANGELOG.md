@@ -2,6 +2,10 @@
 
 只往上追加。每筆寫版本、日期、改了什麼、回饋從哪裡來。
 
+## 2.3.2（2026-11-14）
+
+- 跨專案通用的五條工作規則（存檔點、變更等級、未知不是預設、驗收證據、commit 時機）寫成 `agent` 主題的 `project-harness` 知識點，本技能改成依據它們（`from`、`points`），本文加「依據的規則」一節。內容契約沒有改。
+
 ## 2.3.1（2026-11-14）
 
 - SKILL.md 從 745 行拆成本體加三份內容契約（`references/contracts-common.md`、`mode-rhino-cadcraft.md`、`mode-rhino-animation.md`），符合 Agent Skills 建議的 500 行以內；各模式只讀自己需要的契約。內容契約本身沒有改，init 規格版本仍是 2.3。

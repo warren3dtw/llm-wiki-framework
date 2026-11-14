@@ -1,5 +1,6 @@
 {
   "說明": "頁的類型、種類、必填欄位、必要小節和連結規則。scripts/ 的程式都照這個檔案運作。新增種類或類型只改這裡和 templates/。",
+  "framework_version": "0.4.0",
   "common_required": [
     "title",
     "type",
@@ -354,5 +355,15 @@
     "private": "不能公開"
   },
   "share_說明": "原件登記卡用 share 標授權。頁的可見度取它 raw 原件和 from 依據裡最嚴格的；專案主題的頁一律 private；沒標的原件當成 private。頁或技能可以自己標更嚴格的 share，不能標得比推算結果寬。",
-  "skill_points": "技能的 points 寫成「主題:知識點」，例如 timber:assembly-sequence。"
+  "skill_points": "技能的 points 寫成「主題:知識點」，例如 timber:assembly-sequence。",
+  "plans": {
+    "folder": "docs/plans",
+    "archive": "archive",
+    "files": [
+      "plan.md",
+      "specs.md",
+      "tasks.md"
+    ],
+    "templates": "templates/plan"
+  }
 }

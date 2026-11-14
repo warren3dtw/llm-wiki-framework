@@ -13,7 +13,7 @@
 | 你要做的事 | 角色 | 讀這個 |
 |---|---|---|
 | 查資料、回答問題、做計算、輸出圖集或手冊、把答案回存 | 使用 agent | [`USING.md`](USING.md) |
-| 登記原件、從 PDF 或網頁新增頁、修改知識、整理收件匣、新增或改進技能 | 維護 agent | [`MAINTAINING.md`](MAINTAINING.md) |
+| 登記原件、從 PDF 或網頁新增頁、修改知識、整理收件匣、新增或改進技能 | 維護 agent | [`MAINTAINING.md`](MAINTAINING.md)；一次做不完的工作照第 10 節開計畫 |
 | 只改腳本、說明文件、schema | 維護 agent | [`MAINTAINING.md`](MAINTAINING.md) 的「目錄」和「不要做」 |
 
 ## 所有角色都要遵守
@@ -23,6 +23,7 @@
 - 不修改 `wikis/*/raw/` 裡的原件和擷取結果。同一個資料夾裡的登記卡（`raw/*.md`）可以更新閱讀進度和已知問題。
 - 專案主題（`project-*`）的內容通常受委託方或原設計單位的著作權和保密限制，不能拿到這個 repo 以外的地方用。放了專案內容的 repo 必須維持私人。
 - 要給別人的東西一律用 `export` 產生（公開版技能、空框架），不要手動複製檔案。`share` 是 `private` 的內容不能公開。
+- 整個任務完成而且 `lint` 通過才 commit，只納入這次的變更，不自動 push。
 - 知識庫是學習筆記，不是設計依據。實際設計以現行規範原文和專業簽證為準。
 
 ## 指令
@@ -42,6 +43,9 @@ python scripts/wiki.py query share                         # 哪些可以公開
 python scripts/wiki.py export skill <代號> --public         # 輸出公開版技能（另有 --profile <專案主題>）
 python scripts/wiki.py install skill <代號> <專案路徑> --profile <專案主題>   # 把技能裝進工作專案
 python scripts/wiki.py export framework                    # 輸出空框架
+python scripts/wiki.py new plan <英文名稱> --title "標題"     # 一次做不完的工作：建立計畫
 ```
+
+續作時先看 `docs/plans/` 裡還沒歸檔的計畫，從 `tasks.md` 第一個不是「已驗收」的階段接著做。
 
 整體設計（有哪些東西、怎麼關聯、資料怎麼流動）見 [`docs/FRAMEWORK.md`](docs/FRAMEWORK.md)。
